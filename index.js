@@ -22,11 +22,7 @@ app.post('/api/courses', (req,res) => {
     //validate
     //if invalid, return 400 - means bad request
     
-    if(error){
-        // 400 means bad request
-        res.status(400).send(error.details[0].message);
-        return;
-    }
+    if(error) return res.status(400).send(error.details[0].message); // 400 means bad request
 
     const course = {
         id: courses.length + 1,
@@ -40,18 +36,14 @@ app.put('/api/courses/:id', (req,res) => {
     // look up to the course
     //if not existing return 404
     const course = courses.find(c => c.id === parseInt(req.params.id));
-    if(!course) res.status(404).send('The course with the given ID was not found') //404 
+    if(!course) return res.status(404).send('The course with the given ID was not found'); //404 
 
 
     const {error} = validateCourse(req.body)
     //validate
     //if invalid, return 400 - means bad request
     
-    if(error){
-        // 400 means bad request
-        res.status(400).send(error.details[0].message);
-        return;
-    }
+    if(error) return res.status(400).send(error.details[0].message); // 400 means bad request
 
     //update the course
     //return the updated course
@@ -66,11 +58,24 @@ function validateCourse(course){
     return Joi.validate(course, schema);
 }
 
+app.delete('/api/courses/:id', (req, res) => {
+    //look up the course
+    //not existing, return 404
+    const course = courses.find(c => c.id === parseInt(req.params.id));
+    if(!course)  return res.status(404).send('The course with the given ID was not found'); //404
+
+    //delete
+    const index = courses.indexOf(course);
+    courses.splice(index, 1)
+
+    //return the updated course
+    res.send(course)
+})
 
 
 app.get('/api/courses/:id', (req, res) => {
     const course = courses.find(c => c.id === parseInt(req.params.id));
-    if(!course) res.status(404).send('The course with the given ID was not found') //404 
+    if(!course) return res.status(404).send('The course with the given ID was not found'); //404 
     res.send(course)
 });
 const port = process.env.PORT || 3000;
